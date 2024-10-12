@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "460E1598-0B69-48BD-8F3B-5C3929050BCB",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:AwesomeNews.xcodeproj",
+          "identifier" : "C43E0A492CBAE4A70008C651",
+          "name" : "AwesomeNews"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:AwesomeNews.xcodeproj",
+      "identifier" : "C43E0A492CBAE4A70008C651",
+      "name" : "AwesomeNews"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:AwesomeNews.xcodeproj",
+        "identifier" : "C43E0A592CBAE4A80008C651",
+        "name" : "AwesomeNewsTests"
+      }
+    }
+  ],
+  "version" : 1
+}
