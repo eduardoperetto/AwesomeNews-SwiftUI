@@ -9,16 +9,16 @@ import Alamofire
 import Foundation
 
 struct HeadlineRequest: Encodable {
-    let country: String?
-    let category: Category?
+    let country: NewsCountry?
+    let category: NewsCategory?
     let sources: String?
     let query: String?
     let pageSize: Int?
     let page: Int?
 
     init(
-        country: String? = nil,
-        category: Category? = nil,
+        country: NewsCountry? = nil,
+        category: NewsCategory? = nil,
         sources: String? = nil,
         query: String? = nil,
         pageSize: Int? = nil,
@@ -39,16 +39,6 @@ struct HeadlineRequest: Encodable {
         case query = "q"
         case pageSize
         case page
-    }
-
-    enum Category: String, Encodable {
-        case business
-        case entertainment
-        case general
-        case health
-        case science
-        case sports
-        case technology
     }
 
     func toParameters() -> Parameters? {

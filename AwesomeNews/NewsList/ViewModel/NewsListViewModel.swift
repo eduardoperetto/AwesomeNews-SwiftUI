@@ -7,24 +7,22 @@
 
 import Foundation
 
-struct NewsFilter {
-    let country: String?
-    let category: HeadlineRequest.Category?
-
-    init(country: String = "US", category: HeadlineRequest.Category? = nil) {
-        self.country = country
-        self.category = category
-    }
-}
-
 final class NewsListViewModel: ObservableObject {
+    // MARK: - Published properties
+
     @Published var headlines: [Headline] = []
     @Published var error: Error?
+    @Published var isLoading = false
+    @Published var presentFilterSheet = true
+    @Published var hasReachedEnd = false
+    @Published var filter: NewsFilter = .init()
+
+    // MARK: - Properties
+
     private var currentPage = 1
     private let pageSize = 20
-    var isLoading = false
+
     var hasNextPage = false
-    private var filter: NewsFilter = .init()
 
     private let service: NewsServiceProtocol
 
@@ -34,6 +32,7 @@ final class NewsListViewModel: ObservableObject {
 
     func fetchTopHeadlines() async {
         isLoading = true
+        currentPage = 1
         let headlines = await makeHeadlinesRequest(page: 0)
         DispatchQueue.main.async { [weak self] in
             self?.headlines = headlines
@@ -46,6 +45,7 @@ final class NewsListViewModel: ObservableObject {
             let request = HeadlineRequest(
                 country: filter.country,
                 category: filter.category,
+                query: filter.keyword,
                 pageSize: pageSize,
                 page: page
             )
@@ -74,7 +74,32 @@ final class NewsListViewModel: ObservableObject {
                     self?.isLoading = false
                 }
             }
+        } else {
+            hasReachedEnd = true
         }
+    }
+
+    func applyFilters(category: NewsCategory, country: NewsCountry, keyword: String) {
+        presentFilterSheet = false
+        filter = NewsFilter(country: country, category: category, keyword: keyword)
+        Task { await fetchTopHeadlines() }
+    }
+
+    func resetFilters() {
+        filter = NewsFilter.defaultFilter
+        Task { await fetchTopHeadlines() }
+    }
+
+    func resetFilter(_ keyType: NewsFilterKeyType) {
+        switch keyType {
+        case .category:
+            filter.category = NewsFilter.defaultFilter.category
+        case .country:
+            filter.country = NewsFilter.defaultFilter.country
+        case .keyword:
+            filter.keyword = NewsFilter.defaultFilter.keyword
+        }
+        Task { await fetchTopHeadlines() }
     }
 }
 
