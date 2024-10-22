@@ -7,28 +7,31 @@
 
 import Foundation
 
+@MainActor
 final class NewsListViewModel: ObservableObject {
     // MARK: - Published properties
 
-    @Published var headlines: [Headline] = []
-    @Published var error: Error?
-    @Published var isLoading = false
+    @Published private(set) var headlines: [Headline] = []
+    @Published private(set) var error: Error?
+    @Published private(set) var isLoading = false
     @Published var presentFilterSheet = true
-    @Published var hasReachedEnd = false
-    @Published var filter: NewsFilter = .init()
+    @Published private(set) var hasReachedEnd = false
+    @Published private(set) var filter: NewsFilter = .init()
 
-    // MARK: - Properties
+    // MARK: - Private Properties
 
     private var currentPage = 1
     private let pageSize = 20
-
-    var hasNextPage = false
-
+    private var hasNextPage = false
     private let service: NewsServiceProtocol
+
+    // MARK: - Init
 
     init(service: NewsServiceProtocol) {
         self.service = service
     }
+
+    // MARK: - Internal Methods
 
     func fetchTopHeadlines() async {
         isLoading = true
@@ -37,27 +40,6 @@ final class NewsListViewModel: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             self?.headlines = headlines
             self?.isLoading = false
-        }
-    }
-
-    private func makeHeadlinesRequest(page: Int) async -> [Headline] {
-        do {
-            let request = HeadlineRequest(
-                country: filter.country,
-                category: filter.category,
-                query: filter.keyword,
-                pageSize: pageSize,
-                page: page
-            )
-            let response = try await service.fetchTopHeadlines(request)
-            hasNextPage = response.totalResults > currentPage * pageSize
-            return response.headlines.filterRemoved()
-        } catch {
-            DispatchQueue.main.async { [weak self] in
-                print(error)
-                self?.error = error
-            }
-            return []
         }
     }
 
@@ -77,6 +59,14 @@ final class NewsListViewModel: ObservableObject {
         } else {
             hasReachedEnd = true
         }
+    }
+
+    func openFilterBottomsheet() {
+        presentFilterSheet = true
+    }
+
+    func closeFilterBottomsheet() {
+        presentFilterSheet = false
     }
 
     func applyFilters(category: NewsCategory, country: NewsCountry, keyword: String) {
@@ -100,6 +90,29 @@ final class NewsListViewModel: ObservableObject {
             filter.keyword = NewsFilter.defaultFilter.keyword
         }
         Task { await fetchTopHeadlines() }
+    }
+
+    // MARK: - Private Methods
+
+    private func makeHeadlinesRequest(page: Int) async -> [Headline] {
+        do {
+            let request = HeadlineRequest(
+                country: filter.country,
+                category: filter.category,
+                query: filter.keyword,
+                pageSize: pageSize,
+                page: page
+            )
+            let response = try await service.fetchTopHeadlines(request)
+            hasNextPage = response.totalResults > currentPage * pageSize
+            return response.headlines.filterRemoved()
+        } catch {
+            DispatchQueue.main.async { [weak self] in
+                print(error)
+                self?.error = error
+            }
+            return []
+        }
     }
 }
 

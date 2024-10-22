@@ -12,7 +12,7 @@ struct NewsListView: View {
 
     private var filterButton: some View {
         Button {
-            viewModel.presentFilterSheet.toggle()
+            viewModel.openFilterBottomsheet()
         } label: {
             Image(systemName: "line.horizontal.3.decrease.circle")
                 .imageScale(.large)
@@ -32,7 +32,7 @@ struct NewsListView: View {
         NavigationView {
             VStack {
                 NewsFilterChipStackView(
-                    openFilterSheet: { viewModel.presentFilterSheet = true },
+                    openFilterSheet: { viewModel.openFilterBottomsheet() },
                     resetFilter: { filterKey in viewModel.resetFilter(filterKey) },
                     filterState: viewModel.filter
                 )

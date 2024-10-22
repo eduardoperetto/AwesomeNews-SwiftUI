@@ -128,7 +128,7 @@ struct NewsFilterView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
                 leading: Button(action: {
-                    viewModel.presentFilterSheet = false
+                    viewModel.closeFilterBottomsheet()
                 }) {
                     Text("Cancel")
                         .foregroundColor(.blue)
